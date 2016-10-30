@@ -1,0 +1,58 @@
+---
+
+- name: adding extra check_* scripts
+  copy: "src={{ item }} dest={{ np }} owner=root mode=0755"
+  with_items:
+    - check_aide.pl
+    - check_ossec.pl
+    - count_file.pl
+    - check_snortalerts.pl
+## http://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_updatetime/details
+    - check_updatetime
+
+- name: adding extra check_* scripts
+  template: "src={{ item }} dest={{ np }}/{{ item | regex_replace('.j2$', '') }} owner=root mode=0755"
+  with_items:
+    - check_updates.pl.j2
+
+- name: download Extra plugins
+  get_url: "url={{ item.u }} dest={{ np }}/{{ item.d }} checksum={{ item.checksum }} mode=0755"
+  with_items: "{{ nrpeclient_extra_plugins }}"
+
+- name: ensure nrpe.d exists
+  file: "dest={{ nrpeclient_confdir }} state=directory mode=0755"
+- name: Allow file.d inclusion inside nrpe
+  lineinfile: dest="{{ nrpeclient_conf }}" line="include_dir={{ nrpeclient_confdir }}/"
+  notify:
+    - restart nrpe
+    - restart nrpe - darwin
+- name: install local config for nrpe
+  template: src=local-nrpe.cfg.j2 dest={{ nrpeclient_confdir }}/local-nrpe.cfg mode=0644
+  notify:
+    - restart nrpe
+    - restart nrpe - darwin
+- name: Review nrpe configuration allowed_hosts - replace
+  replace:
+    dest="{{ nrpeclient_conf }}" regexp="{{ item.regexp }}" replace="{{ item.replace }}" backup=yes
+  with_items:
+    - { regexp: '^allowed_hosts=127.0.0.1.*$', replace: 'allowed_hosts=127.0.0.1,{{ nrpeclient_nrpeserver }}' }
+  notify:
+    - restart nrpe
+    - restart nrpe - darwin
+## local_nrpe.cfg
+- name: Review nrpe configuration allowed_hosts - lineinfile
+  lineinfile:
+    dest="{{ nrpeclient_conf }}" regexp="{{ item.regexp }}" line="{{ item.l }}" backup=yes
+  with_items:
+    - { regexp: '^allowed_hosts=127.0.0.1.*$', l: 'allowed_hosts=127.0.0.1,{{ nrpeclient_nrpeserver }}' }
+  notify:
+    - restart nrpe
+    - restart nrpe - darwin
+- name: Review nrpe configuration binding
+  lineinfile:
+    dest='{{ nrpeclient_conf }}' regexp='^server_address=.*$' line='server_address={{ nrpeclient_nrpebind }}' insertafter='^#server_address=127.0.0.1'
+  notify:
+    - restart nrpe
+    - restart nrpe - darwin
+  when: nrpeclient_nrpebind is defined and nrpeclient_nrpebind != ""
+

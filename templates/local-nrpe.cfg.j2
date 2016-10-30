@@ -1,0 +1,72 @@
+## /etc/nagios/nrpe.d/local-nrpe.cfg
+
+command[check_users]={{ np }}/check_users -w {{ nrpeclient_nrpe_users_w }} -c {{ nrpeclient_nrpe_users_c }}
+command[check_sensors]={{ np }}/check_sensors
+command[check_local_ntp]={{ np }}/check_ntp_time -H 127.0.0.1 -w 1 -c 2
+## this command is valid only for NTPD, not OpenNTPD
+command[check_local_ntppeer]={{ np }}/check_ntp_peer -H 127.0.0.1 -j 10 -k 15 -w 1 -c 2
+command[check_local_dns_g]={{ np }}/check_dns -H www.google.com -w 2 -c 10
+command[check_local_dns_g2]={{ np }}/check_dns -H www.google.com -s 8.8.8.8 -w 2 -c 10
+command[check_local_dns_y]={{ np }}/check_dns -H www.yahoo.com -w 2 -c 10
+command[check_file_age]={{ np }}/check_file_age -f '$ARG1$' -w $ARG2$ -c $ARG3$
+command[check_file_age_oinkmaster]={{ np }}/check_file_age -f /tmp/oinkmaster.log -w 86401 -c 259200
+
+command[check_sda1]={{ np }}/check_disk -w 20% -c 10% -p /dev/sda1
+command[check_vda1]={{ np }}/check_disk -w 20% -c 10% -p /dev/vda1
+command[check_rootdisk]={{ np }}/check_disk -w 20% -c 10% -p /
+command[check_tmp]={{ np }}/check_disk -w 20% -c 10% -p /tmp
+command[check_home]={{ np }}/check_disk -w 20% -c 10% -p /home
+command[check_opt]={{ np }}/check_disk -w 20% -c 10% -p /opt
+command[check_var]={{ np }}/check_disk -w 20% -c 10% -p /var
+command[check_var_log]={{ np }}/check_disk -w 20% -c 10% -p /var/log
+command[check_var_tmp]={{ np }}/check_disk -w 20% -c 10% -p /var/tmp
+
+command[check_total_procs]={{ np }}/check_procs -w {{ nrpeclient_nrpe_total_procs_w }} -c {{ nrpeclient_nrpe_total_procs_c }}
+command[check_procs_named]={{ np }}/check_procs -u bind -C named -w 1 -c 1
+command[check_procs_dnscrypt]={{ np }}/check_procs -C dnscrypt-proxy -w 1:5 -c 1:5
+command[check_procs_ossec]={{ np }}/check_procs -u ossec -C ossec-monitord -w 1 -c 1
+command[check_procs_snort]={{ np }}/check_procs -u snort -C snort -w 1 -c 1
+command[check_procs_suricata]={{ np }}/check_procs -C suricata -w 1 -c 1
+command[check_procs_bro]={{ np }}/check_procs -C bro -w 1 -c 1
+command[check_procs_grr]={{ np }}/check_procs -C bro -w 1:2 -c 1:2
+command[check_procs_openvpn]={{ np }}/check_procs -C openvpn -w 1:2 -c 1:3
+command[check_procs_pluto]={{ np }}/check_procs -C pluto -w 1:2 -c 1:2
+command[check_procs_plutoload]={{ np }}/check_procs -C _plutoload -w 1:2 -c 1:2
+command[check_procs_plutorun]={{ np }}/check_procs -C _plutorun -w 1:2 -c 1:2
+
+command[check_swap]={{ np }}/check_swap -w 30% -c 10%
+command[check_mailq]={{ np }}/check_mailq -w 5 -c 10 -M postfix
+command[check_oom]={{ np }}/check_log -F /var/log/syslog -O /var/tmp/syslog -q 'Out of memory:'
+
+command[check_mem_pl]={{ np }}/check_mem.pl -f -w 2 -c 1
+command[check_mem]={{ np }}/check_mem -w 75 -c 90
+
+command[check_ctmp]={{ np }}/count_file.pl -d /tmp -w {{ nrpeclient_nrpe_count_tmp_w }} -c {{ nrpeclient_nrpe_count_tmp_c }} -x {{ nrpeclient_nrpe_size_tmp_w }} -s {{ nrpeclient_nrpe_size_tmp_c }}
+command[check_cvar_log]={{ np }}/count_file.pl -d /var/log -w {{ nrpeclient_nrpe_count_log_w }} -c {{ nrpeclient_nrpe_count_log_c }} -x {{ nrpeclient_nrpe_size_log_w }} -s {{ nrpeclient_nrpe_size_log_c }}
+command[check_cvar_crash]={{ np }}/count_file.pl -d /var/crash -w {{ nrpeclient_nrpe_count_crash_w }} -c {{ nrpeclient_nrpe_count_crash_c }} -x 300000 -s 500000
+command[check_aide]={{ np }}/check_aide.pl
+command[check_aide_log]={{ np }}/check_log -F /var/log/aide/aide.log -O /var/tmp/aide.log -q 'AIDE error output'
+command[check_updates]={{ np }}/check_updates.pl
+## https://github.com/pkropf/Nagios-Plugins/blob/master/reboot_required/check_reboot_required
+## if high urgency? $ xargs aptitude changelog < /var/run/reboot-required.pkgs | grep urgency=high
+command[check_rebootupdates]={{ np }}/check_file_age -f /var/run/reboot-required.pkgs
+command[check_snortalerts]={{ np }}/check_snortalerts.pl
+## backup dir: most recent file under 2w, 6w
+{% if nrpeclient_watched_backupdir is defined and nrpeclient_watched_backupdir != '' %}
+command[check_backup1]={{ np }}/check_updatetime -d {{ nrpeclient_watched_backupdir }} -w 1209600 -c 3888000
+{% endif %}
+
+## sar
+## https://wiki.icinga.org/display/howtos/check_sar_perf
+command[check_sar_pagestat]={{ np }}/check_sar_perf.py pagestat
+command[check_sar_cpu]={{ np }}/check_sar_perf.py cpu
+command[check_sar_memory_util]={{ np }}/check_sar_perf.py memory_util
+command[check_sar_memory_stat]={{ np }}/check_sar_perf.py memory_stat
+command[check_sar_io_transfer]={{ np }}/check_sar_perf.py io_transfer
+command[check_sar_queueln_load]={{ np }}/check_sar_perf.py queueln_load
+command[check_sar_swap_util]={{ np }}/check_sar_perf.py swap_util
+command[check_sar_swap_stat]={{ np }}/check_sar_perf.py swap_stat
+command[check_sar_task]={{ np }}/check_sar_perf.py task
+command[check_sar_kernel]={{ np }}/check_sar_perf.py kernel
+command[check_sar_disk]={{ np }}/check_sar_perf.py disk <yourdisk>
+

@@ -1,0 +1,18 @@
+---
+
+- debug: var=targethost
+- debug: var=nrpeclient_server
+- name: remove client configuration on icinga2 server
+  file: dest="/etc/icinga2/conf.d/hosts-monclient-{{ inventory_hostname }}.conf" state=absent
+  delegate_to: "{{ nrpeclient_server }}"
+  notify:
+    - restart icinga2 server
+  when: nrpeclient_type is defined and nrpeclient_type == 'icinga2' and nrpeclient_server is defined and nrpeclient_server != "" and nrpeclient_server != 'test-kitchen'
+
+- name: remove client configuration on nagios server
+  file: dest=/etc/nagios3/conf.d/hosts-monclient-{{ inventory_hostname }}.cfg state=absent
+  delegate_to: "{{ nrpeclient_server }}"
+  notify:
+    - restart nagios server
+  when: nrpeclient_type is defined and nrpeclient_type == 'nagios' and nrpeclient_server is defined and nrpeclient_server != "" and nrpeclient_server != 'test-kitchen'
+

@@ -1,0 +1,24 @@
+---
+- name: restart nrpe
+  service: name={{ nrpe_svc }} state=restarted
+
+- name: restart nrpe - darwin
+  command: "{{ item }}"
+  with_items:
+    - launchctl unload -w /Library/LaunchDaemons/org.macports.nrpe.plist
+    - launchctl load -w /Library/LaunchDaemons/org.macports.nrpe.plist
+  when: ansible_os_family == 'Darwin'
+
+- name: restart openntpd
+  service: name=openntpd state=restarted
+
+- name: restart icinga2 server
+  service: name=icinga2 state=restarted
+  delegate_to: "{{ nrpeclient_server }}"
+  when: nrpeclient_server is defined and nrpeclient_server != ""
+
+- name: restart nagios server
+  service: name=nagios3 state=restarted
+  delegate_to: "{{ nrpeclient_server }}"
+  when: nrpeclient_server is defined and nrpeclient_server != ""
+

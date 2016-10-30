@@ -1,0 +1,13 @@
+---
+
+nrpeclient_packages:
+    - nrpe
+    - nagios-plugins
+
+nrpeclient_conf: /etc/nrpe.cfg
+nrpeclient_confdir: /etc/nrpe.d
+nrpe_svc: nrpe
+np: /usr/lib/nagios/plugins
+
+perl_bin: /usr/bin/perl
+

@@ -1,0 +1,25 @@
+---
+
+- name: Include distribution-specific variables
+  include_vars: "{{ ansible_distribution }}.yml"
+
+- block:
+    - name: nrpe & plugins packages install
+      package: name={{nrpeclient_packages}} state=present
+## on lxc containers: "error: unpacking of archive failed on file /usr/sbin/fping: cpio: cap_set_file"
+      ignore_errors: true
+      when: ansible_system == 'Linux'
+    - include: darwin.yml
+      when: ansible_os_family == 'Darwin'
+
+    - include: nrpe.yml
+    - include: nrpe-server-register.yml
+
+    - name: Ensure services are enabled and started
+      service: name={{ nrpe_svc }} state=started enabled=yes
+      when: ansible_system == 'Linux'
+  when: (monclient_remove is not defined or not monclient_remove)
+
+- include: remove.yml
+  when: monclient_remove is defined and monclient_remove
+

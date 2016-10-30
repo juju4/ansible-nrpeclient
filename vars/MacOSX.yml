@@ -1,0 +1,14 @@
+---
+
+nrpeclient_packages:
+    - nrpe
+    - nagios-plugins
+    - p5-html-strip
+
+nrpeclient_conf: /opt/local/etc/nrpe/nrpe.cfg
+nrpeclient_confdir: /opt/local/etc/nrpe/nrpe.d
+#nrpe_svc: nrpe
+np: /opt/local/libexec/nagios
+
+perl_bin: /opt/local/bin/perl
+

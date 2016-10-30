@@ -1,0 +1,13 @@
+---
+
+- hosts: all
+  vars:
+#    - nrpeclient_type: icinga2
+#    - nrpeclient_nrpeserver: 192.168.0.1
+## no server setup
+    - nrpeclient_type:
+## can't be empty or in v2, setup gets: "AttributeError: 'NoneType' object has no attribute 'split'"
+    - nrpeclient_server: test-kitchen
+  roles:
+    - juju4.nrpeclient
+
