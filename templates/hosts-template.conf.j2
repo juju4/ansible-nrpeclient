@@ -18,6 +18,14 @@ object Host "{{ nrpeclient_hostname }}" {
 {% if nrpeclient_group is defined %}
     groups += [ "{{ nrpeclient_group }}" ]
 {% endif %}
+{% if nrpeclient_icinga2_extra_vars is defined and nrpeclient_icinga2_extra_vars != [] %}
+{% for item in nrpeclient_icinga2_extra_vars %}
+    {{ item }}
+{% endfor %}
+{% endif %}
+{% if snmpd_v2_snmpcommunity is defined and snmpd_v2_snmpcommunity != '' %}
+   vars.snmp_community = "{{ snmpd_v2_snmpcommunity }}"
+{% endif %}
 
 }
 {% endif %}
@@ -28,6 +36,11 @@ object Service "SSH" {
     check_command = "check_ssh"
     enable_notifications = 0
     groups = [ "ssh" ]
+{% if nrpeclient_icinga2_extra_ssh_vars is defined and nrpeclient_icinga2_extra_ssh_vars != [] %}
+{% for item in nrpeclient_icinga2_extra_ssh_vars %}
+    {{ item }}
+{% endfor %}
+{% endif %}
 }
 
 object Service "users-n" {
@@ -258,6 +271,9 @@ object Service "updates-n" {
 {% if ansible_os_family == 'Darwin' %}
 ## softwareupdate and macports are slow to return results
     check_timeout = 60
+{% else %}
+## some linux system are slow to answer
+    check_timeout = 60
 {% endif %}
     groups = [ "updates" ]
 }
@@ -319,12 +335,12 @@ object Service "mongodb size-n" {
 
 {% endif %}
 {% if 'nfsenserver' in group_names %}
-object Service "nfsen procs-n" {
+object Service "nfsend procs-n" {
     import "generic-service"
     host_name = "{{ nrpeclient_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
-    vars.ARG1 = "check_procs_nfsen"
+    vars.ARG1 = "check_procs_nfsend"
     groups = [ "process" ]
 }
 
@@ -352,6 +368,35 @@ object Service "nfsen dumps age" {
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_var_lib_nfsen_age"
+    groups = [ "process" ]
+}
+
+{% endif %}
+{% if 'ci' in group_names %}
+object Service "jenkins procs-n" {
+    import "generic-service"
+    host_name = "{{ nrpeclient_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_jenkins"
+    groups = [ "process" ]
+}
+
+object Service "monit procs-n" {
+    import "generic-service"
+    host_name = "{{ nrpeclient_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_monit"
+    groups = [ "process" ]
+}
+
+object Service "nginx procs-n" {
+    import "generic-service"
+    host_name = "{{ nrpeclient_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_nginx"
     groups = [ "process" ]
 }
 

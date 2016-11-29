@@ -1,5 +1,6 @@
 ---
 
+nrpe_svc: ''
 nrpeclient_packages:
     - nrpe
     - nagios-plugins

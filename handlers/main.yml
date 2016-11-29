@@ -1,6 +1,7 @@
 ---
 - name: restart nrpe
   service: name={{ nrpe_svc }} state=restarted
+  when: ansible_os_family != 'Darwin'
 
 - name: restart nrpe - darwin
   command: "{{ item }}"

@@ -10,6 +10,27 @@
 ## http://exchange.nagios.org/directory/Plugins/Operating-Systems/Linux/check_updatetime/details
     - check_updatetime
 
+- block:
+    - name: check if aide cron is present
+      stat: path=/etc/cron.daily/aide
+      register: cronaide
+    - name: Allow nagios user to read aide.log
+      replace:
+        "dest='/etc/cron.daily/aide' regexp='{{ item.regexp }}' replace='{{ item.replace }}'"
+      with_items:
+## or 'setfacl -m u:nagios:r-- /var/log/aide/aide.log'
+#        - { regexp: 'savelog -t -g adm -m 640', replace: 'savelog -t -g adm -m 644' }
+        - { regexp: 'savelog -t -g adm -m 64? -u root -c 7 "$LOGFILE" > /dev/null$', replace: 'savelog -t -g adm -m 640 -u root -c 7 "$LOGFILE" > /dev/null && setfacl -m u:nagios:r-- "$LOGFILE" 2> /dev/null' }
+      when: cronaide.stat.exists
+    - name: check if aide.log is present
+      stat: path=/var/log/aide/aide.log
+      register: aidelog
+    - name: update permissions of aide.log
+#      file: dest=/var/log/aide/aide.log mode=0644
+      acl: name=/var/log/aide/aide.log entity=nagios etype=user permissions="r" state=present
+      when: aidelog.stat.exists
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
 - name: adding extra check_* scripts
   template: "src={{ item }} dest={{ np }}/{{ item | regex_replace('.j2$', '') }} owner=root mode=0755"
   with_items:

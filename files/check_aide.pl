@@ -5,7 +5,7 @@
 ##
 ## https://nagios-plugins.org/doc/guidelines.html
 ## FIXME! if aide.log empty and non-empty error.log: configuration error
-##	+ warning/critical threshold
+##    + warning/critical threshold
 ## Note: have to adjust aide.log rotating settings to be 644 in /etc/cron.daily/aide
 ## $ sudo install -m 755 /Users/julien/script/ext/check_aide.pl /opt/local/libexec/nagios/
 
@@ -16,17 +16,17 @@ my ($total, $add, $rm, $ch, $host, $info, $f, $strf);
 
 if ($^O eq 'linux') {
         use lib '/usr/lib/nagios/plugins';
-	## Note: debian permission are 640 by default
-	## need to adjust /etc/cron.daily/aide
-	$f = '/var/log/aide/aide.log';
-	## ubuntu 12.04
-	#$strf = 'files';
-	## ubuntu 14.04
-	$strf = 'entries';
+    ## Note: debian permission are 640 by default
+    ## need to adjust /etc/cron.daily/aide
+    $f = '/var/log/aide/aide.log';
+    ## ubuntu 12.04
+    #$strf = 'files';
+    ## ubuntu 14.04
+    $strf = 'entries';
 } elsif ($^O eq 'darwin') {
         use lib '/opt/local/libexec/nagios';
-	$f = '/opt/local/var/log/aide/aide.log';
-	$strf = 'files';
+    $f = '/opt/local/var/log/aide/aide.log';
+    $strf = 'files';
 }
 
 ### Nagios plugins elements
@@ -44,10 +44,10 @@ sub print_usage ();
 
 my ($help,$version);
 GetOptions(    help => \$help,
-		debug => \$DEBUG,
-		version => \$version,
-		'timeout=s' => \$TIMEOUT,
-		'file=s' => \$f
+        debug => \$DEBUG,
+        version => \$version,
+        'timeout=s' => \$TIMEOUT,
+        'file=s' => \$f
 );
 my ($PROGNAME) = $0 =~ m#.*/(.*)#;
 
@@ -83,25 +83,30 @@ sub print_usage () {
 $total = $add = $rm = $ch = $host = '';
 if (-f $f) {
 
-	open(FILE, "$f") or die "Can't open file $f: $!\n";
-	while (<FILE>) {
-		if (/Total number of $strf:\s+(\d+)/) {
-			$total = $1;
-		} elsif (/Added $strf:\s+(\d+)/) {
-			$add = $1;
-		} elsif (/Removed $strf:\s+(\d+)/) {
-			$rm = $1;
-		} elsif (/Changed $strf:\s+(\d+)/) {
-			$ch = $1;
-		} elsif (/aide run on (.*?) started at/) {
-			$host = $1;
-		}
-	}
-	$info = "Add/Deleted/Changed files $add/$rm/$ch on total $total files from $host: '$f'";
+    open(FILE, "$f") or die "Can't open file $f: $!\n";
+    while (<FILE>) {
+        if (/Total number of $strf:\s+(\d+)/) {
+            $total = $1;
+        } elsif (/Added $strf:\s+(\d+)/) {
+            $add = $1;
+        } elsif (/Removed $strf:\s+(\d+)/) {
+            $rm = $1;
+        } elsif (/Changed $strf:\s+(\d+)/) {
+            $ch = $1;
+        } elsif (/aide run on (.*?) started at/) {
+            $host = $1;
+        } elsif (/Fatal error:/) {
+            $RET = 'CRITICAL';
+            $info = "Fatal error in aide.log!";
+        }
+    }
+    if ($total) {
+        $info = "Add/Deleted/Changed files $add/$rm/$ch on total $total files from $host: '$f'";
+    }
 
 } else {
-	$RET = 'CRITICAL';
-	$info = "file '$f' does not exist!";
+    $RET = 'CRITICAL';
+    $info = "file '$f' does not exist!";
 }
 
 close(FILE);
