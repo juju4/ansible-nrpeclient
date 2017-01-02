@@ -14,6 +14,8 @@
 
     - include: nrpe.yml
     - include: nrpe-server-register.yml
+    - include: ntp.yml
+      when: nrpeclient_watch_ntp and not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker"))
 
     - name: Ensure services are enabled and started
       service: name={{ nrpe_svc }} state=started enabled=yes

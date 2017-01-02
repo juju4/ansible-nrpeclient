@@ -1,5 +1,4 @@
 #!/usr/bin/perl -w
-## $Id: check_aide.pl 3427 2016-11-30 04:02:20Z julien $
 # nagios: -epn
 ## get some quick stats from aide/HIDS log file to nagios w perfdata
 ##
@@ -7,7 +6,6 @@
 ## FIXME! if aide.log empty and non-empty error.log: configuration error
 ##    + warning/critical threshold
 ## Note: have to adjust aide.log rotating settings to be 644 in /etc/cron.daily/aide
-## $ sudo install -m 755 /Users/julien/script/ext/check_aide.pl /opt/local/libexec/nagios/
 
 use warnings;
 use strict;

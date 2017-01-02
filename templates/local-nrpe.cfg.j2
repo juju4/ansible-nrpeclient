@@ -1,3 +1,4 @@
+## {{ ansible_managed }}
 ## /etc/nagios/nrpe.d/local-nrpe.cfg
 
 command[check_users]={{ np }}/check_users -w {{ nrpeclient_nrpe_users_w }} -c {{ nrpeclient_nrpe_users_c }}
@@ -26,15 +27,20 @@ command[check_procs_named]={{ np }}/check_procs -u bind -C named -w 1 -c 1
 command[check_procs_dnscrypt]={{ np }}/check_procs -C dnscrypt-proxy -w 1:5 -c 1:5
 command[check_procs_nginx]={{ np }}/check_procs -C nginx -w 1:5 -c 1:10
 command[check_procs_apache2]={{ np }}/check_procs -C apache2 -w 1:5 -c 1:10
+command[check_procs_supervisor]={{ np }}/check_procs -C supervisord -u root -a '/etc/supervisor/supervisord.conf' -w 1:1 -c 1:1
 command[check_procs_ossec]={{ np }}/check_procs -u ossec -C ossec-monitord -w 1 -c 1
 command[check_procs_snort]={{ np }}/check_procs -u snort -C snort -w 1 -c 1
 command[check_procs_suricata]={{ np }}/check_procs -C suricata -w 1 -c 1
 command[check_procs_bro]={{ np }}/check_procs -C bro -w 1 -c 1
-command[check_procs_grr]={{ np }}/check_procs -C bro -w 1:2 -c 1:2
+command[check_procs_grr]={{ np }}/check_procs -C grr -w 1:2 -c 1:2
 command[check_procs_openvpn]={{ np }}/check_procs -C openvpn -w 1:2 -c 1:3
 command[check_procs_pluto]={{ np }}/check_procs -C pluto -w 1:2 -c 1:2
 command[check_procs_plutoload]={{ np }}/check_procs -C _plutoload -w 1:2 -c 1:2
 command[check_procs_plutorun]={{ np }}/check_procs -C _plutorun -w 1:2 -c 1:2
+{% if ansible_os_family == 'Darwin' %}
+command[check_procs_osqueryd]={{ np }}/check_procs -C osqueryd -w 1:2 -c 1:2
+command[check_procs_santad]={{ np }}/check_procs -C santad -w 1:1 -c 1:1
+{% endif %}
 
 command[check_swap]={{ np }}/check_swap -w 30% -c 10%
 command[check_mailq]={{ np }}/check_mailq -w 5 -c 10 -M postfix
@@ -56,8 +62,13 @@ command[check_rebootupdates]={{ np }}/check_file_age -f /var/run/reboot-required
 command[check_snortalerts]={{ np }}/check_snortalerts.pl
 ## backup dir: most recent file under 2w, 6w
 {% if nrpeclient_watched_backupdir is defined and nrpeclient_watched_backupdir != '' %}
-command[check_backup1]={{ np }}/check_updatetime -d {{ nrpeclient_watched_backupdir }} -w 1209600 -c 3888000
+command[check_backup1]={{ np }}/check_updatetime -d {{ nrpeclient_watched_backupdir }} -w {{ nrpclient_backuptime_w }} -c {{ nrpclient_backuptime_c }}
 {% endif %}
+
+## https://www.thomas-krenn.com/en/wiki/SMART_Attributes_Monitoring_Plugin
+{% for disk in nrpeclient_disks_smart %}
+command[check_smart_attributes_{{ disk }}]={{ np }}/check_smart_attributes -d /dev/{{ disk }} -dbj /etc/nagios-plugins/config/check_smartdb.json
+{% endfor %}
 
 ## sar
 ## https://wiki.icinga.org/display/howtos/check_sar_perf
@@ -75,8 +86,10 @@ command[check_sar_disk]={{ np }}/check_sar_perf.py disk <yourdisk>
 
 {% if ansible_os_family == 'Darwin' %}
 command[check_osx_mem]=/usr/local/share/OSX-Monitoring-Tools/check_osx_mem/build/Release/check_osx_mem -w 80 -c 90
-command[check_osx_smc]=/usr/local/share/OSX-Monitoring-Tools/check_osx_smc/build/Release/check_osx_smc -r TC0D,F0Ac -w 85,3800 -c 100,5200 -s c
+command[check_osx_smc]=/usr/local/share/OSX-Monitoring-Tools/check_osx_smc/build/Release/check_osx_smc {{ nrpeclient_osx_smc }}
 command[check_osx_smart]=/usr/local/share/OSX-Monitoring-Tools/check_smart.sh -d disk0
+command[check_osx_launchd]=/usr/local/share/OSX-Monitoring-Tools/check_osx_launchd.sh
+command[check_osx_timemachine]=/usr/local/share/OSX-Monitoring-Tools/check_time_machine_currency.sh -w {{ nrpclient_backuptime_w }} -c {{ nrpclient_backuptime_c }}
 command[check_cLibraryLogsDiagnosticReports]={{ np }}/count_file.pl -d /Library/Logs/DiagnosticReports -w {{ nrpeclient_nrpe_count_crash_w }} -c {{ nrpeclient_nrpe_count_crash_c }} -x 300000 -s 500000
 
 {% endif %}

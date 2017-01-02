@@ -2,11 +2,12 @@
 ## from https://github.com/geerlingguy/ansible-role-apache/blob/master/.travis.yml
 sudo: required
 
+## FIXME! travis stalling after 10min... for centos6/trusty/precise. https://travis-ci.org/juju4/ansible-nrpeclient/builds/179801891
 env:
-  - distribution: centos
-    version: 6
-    init: /sbin/init
-    run_opts: ""
+#  - distribution: centos
+#    version: 6
+#    init: /sbin/init
+#    run_opts: ""
   - distribution: centos
     version: 7
     init: /usr/lib/systemd/systemd
@@ -16,14 +17,14 @@ env:
     init: /lib/systemd/systemd
     run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
 #    run_opts: ""
-  - distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-  - distribution: ubuntu
-    version: 12.04
-    init: /sbin/init
-    run_opts: ""
+#  - distribution: ubuntu
+#    version: 14.04
+#    init: /sbin/init
+#    run_opts: ""
+#  - distribution: ubuntu
+#    version: 12.04
+#    init: /sbin/init
+#    run_opts: ""
 
 services:
   - docker

@@ -1,5 +1,5 @@
 #!{{ perl_bin }} -w
-## $Id: check_updates.pl.j2 3193 2016-10-27 22:05:01Z julien $
+## {{ ansible_managed }}
 ## http://nagios.sourceforge.net/docs/3_0/embeddedperl.html
 # nagios: -epn
 ##
@@ -83,7 +83,7 @@ GetOptions(    help => \$help,
 my ($PROGNAME) = $0 =~ m#.*/(.*)#;
 
 if ($help) {
-	print_revision($PROGNAME,"\$Revision: 3193 $VERSION \$");
+	print_revision($PROGNAME,"\$Revision: 3574 $VERSION \$");
 	print "Copyright (c) 2005 Francesc Guasch - Ortiz
 
 	Perl Check debian packages plugin for Nagios
@@ -94,7 +94,7 @@ if ($help) {
 }
 
 if ($version) {
-	print_revision($PROGNAME,"\$Revision: 3193 $VERSION \$");
+	print_revision($PROGNAME,"\$Revision: 3574 $VERSION \$");
 	exit($ERRORS{OK});
 }
 
@@ -255,8 +255,6 @@ sub run_mac_softwareupdate {
 			#die "$_\n" unless defined $pkg;
 		} else {
 			if ($pkg && m/\((.*)\), .*K \[recommended\]/i) {
-			#if ($pkg && m/\[recommended\]/i) {
-			#if ($pkg && m/\[recommended\]/i) {
 				$release = 'recommended' ;
 				$ver = $1;
 				print "$_ ==>pkg=$pkg ver=$ver release=$release\n" if $DEBUG;
@@ -292,7 +290,9 @@ sub run_mac_softwareupdate {
 
 sub run_macports {
 	## FIXME! for some reason, on my test setup, it seems I always get 1 outdated port... (call through nrpe, direct call or sudo nagios correct)
+    ##      nrpe daemon environment seems to break macports mportinit/tcl environment
 	my $CMD_MP = "/opt/local/bin/port -q outdated";
+	print "CMD_MP: $CMD_MP\n" if $DEBUG;
 	open OUT,"$CMD_MP 2>&1|" or exit_unknown("Can't execute '$CMD_MP' command: $!");
 	my (%macports, $pkg, $release, $ver);
 	$release = $ver = '';
@@ -300,21 +300,26 @@ sub run_macports {
 	my $perfdata = '';
 	
 	while (<OUT>) {
-		print "MP: $_" if $DEBUG;
-		($pkg,$ver,$release) = /(.*?)\s+(.*?) \< (.*?)/;
-		print "$_ =>pkg=$pkg ver=$ver release=release\n" if $DEBUG;
-		$macports{$pkg}=$ver;
+		if (/(.*?)\s+(.*?) \< (.*?)/) {
+			$pkg = $1; $ver = $2; $release = $3;
+			print "$_ =>pkg=$pkg ver=$ver release=release\n" if $DEBUG;
+			$macports{$pkg}=$ver;
+		}
 	}
 	my ($total,$inactive); 
 	$total = $inactive = 0;
 	$CMD_MP = "/opt/local/bin/port -q installed";
-	open OUT,"$CMD_MP 2>&1|" or exit_unknown("Can't execute '$CMD_MP' command: $!");
+	print "CMD_MP: $CMD_MP\n" if $DEBUG;
+	open OUT,"$CMD_MP |" or exit_unknown("Can't execute '$CMD_MP' command: $!");
 	while (<OUT>) {
+		print "$_\n" if $DEBUG;
 		$total += 1;
 	}
 	$CMD_MP = "/opt/local/bin/port -q installed inactive";
-	open OUT,"$CMD_MP 2>&1|" or exit_unknown("Can't execute '$CMD_MP' command: $!");
+	print "CMD_MP: $CMD_MP\n" if $DEBUG;
+	open OUT,"$CMD_MP |" or exit_unknown("Can't execute '$CMD_MP' command: $!");
 	while (<OUT>) {
+		print "$_\n" if $DEBUG;
 		$inactive += 1;
 	}
 	close OUT;
@@ -351,6 +356,8 @@ if ($^O eq 'linux') {
 			if ($line =~ /NAME="Ubuntu"/) {
 				$distrib = "ubuntu";
 			} elsif ($line =~ /NAME="Debian"/) {
+				$distrib = "debian";
+			} elsif ($line =~ /ID_LIKE=debian/) {
 				$distrib = "debian";
 			}
 		}

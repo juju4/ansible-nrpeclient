@@ -23,3 +23,6 @@
   delegate_to: "{{ nrpeclient_server }}"
   when: nrpeclient_server is defined and nrpeclient_server != ""
 
+- name: restart smartmontools
+  service: name=smartmontools state=restarted
+

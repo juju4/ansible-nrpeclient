@@ -1,3 +1,4 @@
+## {{ ansible_managed }}
 ## Icinga2 host template
 
 {% if nrpeclient_hostname is defined and nrpeclient_server is defined and nrpeclient_hostname != nrpeclient_server %}
@@ -76,6 +77,17 @@ object Service "partition root-n" {
     groups = [ "disk" ]
 }
 
+{% for disk in nrpeclient_disks_smart %}
+object Service "disk smart {{ disk }}-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_smart_attributes_{{ disk }}"
+    groups = [ "disk" ]
+}
+
+{% endfor %}
 {% endif %}
 object Service "zombie procs-n" {
     import "generic-service"
@@ -95,6 +107,26 @@ object Service "total procs-n" {
     groups = [ "process" ]
 }
 
+{% if ansible_os_family == 'Darwin' %}
+object Service "procs osqueryd-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_procs_osqueryd"
+    groups = [ "process" ]
+}
+
+object Service "procs santad-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_procs_santad"
+    groups = [ "process" ]
+}
+
+{% endif %}
 {% if monitor_mailq_postfix %}
 object Service "mailq-n" {
     import "generic-service"
@@ -106,7 +138,7 @@ object Service "mailq-n" {
 }
 {% endif %}
 
-{% if monitor_ntp is defined and monitor_ntp and (ansible_virtualization_type is not defined or (ansible_virtualization_type != "lxc" and ansible_virtualization_type != "docker")) %}
+{% if nrpeclient_watch_ntp and (ansible_virtualization_type is not defined or (ansible_virtualization_type != "lxc" and ansible_virtualization_type != "docker")) %}
 object Service "NTP-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -200,6 +232,7 @@ object Service "DNS www.yahoo.com" {
 
 {# not applicable to Darwin and lxc containers inherit host #}
 {% if ansible_os_family != 'Darwin' and 'lxc' not in group_names %}
+{% if nrpeclient_watch_swap %}
 object Service "swap-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -209,6 +242,9 @@ object Service "swap-n" {
     groups = [ "memory" ]
 }
 
+{% endif %}
+{# require libnagios-plugin-perl, not available on Kali 2016 #}
+{% if ansible_os_family != "Kali" %}
 object Service "mem-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -218,6 +254,17 @@ object Service "mem-n" {
     groups = [ "memory" ]
 }
 
+{% else %}
+object Service "mem-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_mem_pl"
+    groups = [ "memory" ]
+}
+
+{% endif %}
 object Service "oom-killer-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -238,6 +285,15 @@ object Service "mem osx-n" {
     groups = [ "memory" ]
 }
 
+object Service "launchd osx-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_osx_launchd"
+#    groups = [ "sensors" ]
+}
+
 object Service "smc osx-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -254,6 +310,15 @@ object Service "smart osx-n" {
     enable_notifications = 0
     vars.ARG1 = "check_osx_smart"
 #    groups = [ "sensors" ]
+}
+
+object Service "timemachine osx-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_osx_timemachine"
+    groups = [ "backups" ]
 }
 
 {% endif %}
@@ -302,6 +367,7 @@ object Service "count file /Library/Logs/DiagnosticReports-n" {
 }
 
 {% endif %}
+{% if nrpeclient_watch_aidehids %}
 object Service "Aide HIDS status-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -311,6 +377,7 @@ object Service "Aide HIDS status-n" {
     groups = [ "HIPS" ]
 }
 
+{% endif %}
 object Service "updates-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -343,7 +410,7 @@ object Service "updates-n" {
 #    vars.ARG1 = "check_snortalerts"
 #}
 
-{% if ansible_os_family != 'Darwin' %}
+{% if nrpeclient_watched_backupdir != '' and ansible_os_family != 'Darwin' %}
 object Service "backup1-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -354,7 +421,18 @@ object Service "backup1-n" {
 }
 
 {% endif %}
-{% if 'mhnserver' in group_names %}
+{% if 'dnsserver' in group_names %}
+object Service "named/bind procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_named"
+    groups = [ "process" ]
+}
+
+{% endif %}
+{% if nrpeclient_watch_supervisor %}
 object Service "supervisor procs-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -364,6 +442,8 @@ object Service "supervisor procs-n" {
     groups = [ "process" ]
 }
 
+{% endif %}
+{% if 'mhnserver' in group_names %}
 object Service "mhn errors-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
@@ -459,6 +539,73 @@ object Service "nginx procs-n" {
 }
 
 {% endif %}
+{% if nrpeclient_watch_sysstat and ansible_os_family != 'Darwin' %}
+object Service "sysstat pagestat-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_pagestat"
+    groups = [ "memory" ]
+}
+
+object Service "sysstat cpu-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_cpu"
+    groups = [ "load" ]
+}
+
+object Service "sysstat memory_util-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_memory_util"
+    groups = [ "memory" ]
+}
+
+object Service "sysstat memory_stat-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_memory_stat"
+    groups = [ "memory" ]
+}
+
+object Service "sysstat io_transfer-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_io_transfer"
+    groups = [ "disk" ]
+}
+
+object Service "sysstat task-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_task"
+    groups = [ "process" ]
+}
+
+object Service "sysstat kernel-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_kernel"
+    groups = [ "process" ]
+}
+
+object Service "sysstat queueln_load-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    vars.ARG1 = "check_sar_queueln_load"
+    groups = [ "load" ]
+}
+
+{% endif %}
+
 {# for icinga2/nagvis #}
 {% if nrpeclient_parent is defined %}
 apply Dependency "parent-{{ inventory_hostname }}" to Host {

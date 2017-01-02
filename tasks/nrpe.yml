@@ -77,3 +77,6 @@
     - restart nrpe - darwin
   when: nrpeclient_nrpebind is defined and nrpeclient_nrpebind != ""
 
+- include: smart.yml
+  when: nrpeclient_disks_smart != []
+
