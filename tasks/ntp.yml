@@ -1,0 +1,17 @@
+---
+
+- name: ensure openntpd is installed
+  package: name=openntpd state=present
+
+- name: ensure openntpd listens on localhost
+  lineinfile:
+    dest: "{{ nrpeclient_openntpd_conf }}"
+    line: 'listen on 127.0.0.1'
+    backup: yes
+  notify:
+    - restart openntpd
+
+- name: ensure openntpd is started and enabled
+  service: name=openntpd state=started enabled=yes
+  when: ansible_system == 'Linux'
+

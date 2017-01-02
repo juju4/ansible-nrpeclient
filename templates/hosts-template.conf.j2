@@ -3,7 +3,7 @@
 {% if nrpeclient_hostname is defined and nrpeclient_server is defined and nrpeclient_hostname != nrpeclient_server %}
 ## setup basic check alive directly in server config
 
-object Host "{{ nrpeclient_hostname }}" {
+object Host "{{ inventory_hostname }}" {
     import "generic-host"
     display_name = "{{ inventory_hostname }}"
 #    display_name = "{{ ansible_fqdn }}"
@@ -32,7 +32,7 @@ object Host "{{ nrpeclient_hostname }}" {
 
 object Service "SSH" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_ssh"
     enable_notifications = 0
     groups = [ "ssh" ]
@@ -45,7 +45,7 @@ object Service "SSH" {
 
 object Service "users-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_users"
@@ -54,16 +54,17 @@ object Service "users-n" {
 
 object Service "load-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_load"
     groups = [ "load" ]
 }
 
+{% if not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker")) %}
 object Service "partition root-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
 ## Note: rootdisk seems to take all mounted partition: got / + /vagrant
@@ -75,9 +76,10 @@ object Service "partition root-n" {
     groups = [ "disk" ]
 }
 
+{% endif %}
 object Service "zombie procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_zombie_procs"
@@ -86,7 +88,7 @@ object Service "zombie procs-n" {
 
 object Service "total procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_total_procs"
@@ -96,7 +98,7 @@ object Service "total procs-n" {
 {% if monitor_mailq_postfix %}
 object Service "mailq-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_mailq"
@@ -107,7 +109,7 @@ object Service "mailq-n" {
 {% if monitor_ntp is defined and monitor_ntp and (ansible_virtualization_type is not defined or (ansible_virtualization_type != "lxc" and ansible_virtualization_type != "docker")) %}
 object Service "NTP-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_local_ntp"
@@ -117,7 +119,7 @@ object Service "NTP-n" {
 
 object Service "DNS www.google.com-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_local_dns_g"
@@ -126,7 +128,7 @@ object Service "DNS www.google.com-n" {
 
 object Service "DNS www.google.com - 8.8.8.8" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_local_dns_g2"
@@ -135,7 +137,7 @@ object Service "DNS www.google.com - 8.8.8.8" {
 
 object Service "DNS www.yahoo.com" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_local_dns_y"
@@ -147,7 +149,7 @@ object Service "DNS www.yahoo.com" {
 #{X% if item.mount is defined item.mount == '/boot' -%}
 #object Service "partition /boot" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_{X{ item.device }}"
@@ -157,7 +159,7 @@ object Service "DNS www.yahoo.com" {
 #{X% endfor %}
 #object Service "partition /home" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_home"
@@ -165,7 +167,7 @@ object Service "DNS www.yahoo.com" {
 #
 #object Service "partition /tmp-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_tmp"
@@ -173,7 +175,7 @@ object Service "DNS www.yahoo.com" {
 #
 #object Service "partition /var-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_var"
@@ -181,7 +183,7 @@ object Service "DNS www.yahoo.com" {
 #
 #object Service "partition /var/log-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_var_log"
@@ -189,7 +191,7 @@ object Service "DNS www.yahoo.com" {
 #
 #object Service "partition /var/tmp-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_var_tmp"
@@ -200,7 +202,7 @@ object Service "DNS www.yahoo.com" {
 {% if ansible_os_family != 'Darwin' and 'lxc' not in group_names %}
 object Service "swap-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_swap"
@@ -209,18 +211,56 @@ object Service "swap-n" {
 
 object Service "mem-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_mem"
     groups = [ "memory" ]
 }
 
+object Service "oom-killer-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_oom_killer"
+    groups = [ "memory" ]
+}
+
+{% endif %}
+{% if ansible_os_family == 'Darwin' %}
+object Service "mem osx-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_osx_mem"
+    groups = [ "memory" ]
+}
+
+object Service "smc osx-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_osx_smc"
+#    groups = [ "sensors" ]
+}
+
+object Service "smart osx-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_osx_smart"
+#    groups = [ "sensors" ]
+}
+
 {% endif %}
 {% if monitor_sensors %}
 object Service "sensors-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_sensors"
@@ -229,7 +269,7 @@ object Service "sensors-n" {
 
 object Service "count file /tmp-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_ctmp"
@@ -237,7 +277,7 @@ object Service "count file /tmp-n" {
 
 object Service "count file /var/log-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_cvar_log"
@@ -246,16 +286,25 @@ object Service "count file /var/log-n" {
 {% if ansible_os_family != 'Darwin' %}
 object Service "count file /var/crash-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_cvar_crash"
 }
 
+{% else %}
+object Service "count file /Library/Logs/DiagnosticReports-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_cLibraryLogsDiagnosticReports"
+}
+
 {% endif %}
 object Service "Aide HIDS status-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_aide"
@@ -264,8 +313,8 @@ object Service "Aide HIDS status-n" {
 
 object Service "updates-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
-    check_command = "check_nrpe_1arg"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg_t60"
     enable_notifications = 0
     vars.ARG1 = "check_updates"
 {% if ansible_os_family == 'Darwin' %}
@@ -280,7 +329,7 @@ object Service "updates-n" {
 
 #object Service "File Age: oinkmaster.log-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_file_age_oinkmaster"
@@ -288,7 +337,7 @@ object Service "updates-n" {
 
 #object Service "snort alerts-n" {
 #    import "generic-service"
-#    host_name = "{{ nrpeclient_hostname }}"
+#    host_name = "{{ inventory_hostname }}"
 #    check_command = "check_nrpe_1arg"
 #    enable_notifications = 0
 #    vars.ARG1 = "check_snortalerts"
@@ -297,7 +346,7 @@ object Service "updates-n" {
 {% if ansible_os_family != 'Darwin' %}
 object Service "backup1-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_backup1"
@@ -308,7 +357,7 @@ object Service "backup1-n" {
 {% if 'mhnserver' in group_names %}
 object Service "supervisor procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_supervisor"
@@ -317,7 +366,7 @@ object Service "supervisor procs-n" {
 
 object Service "mhn errors-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_mhn_errors"
@@ -326,10 +375,19 @@ object Service "mhn errors-n" {
 
 object Service "mongodb size-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_var_lib_mongodb"
+    groups = [ "process" ]
+}
+
+object Service "nginx procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_nginx"
     groups = [ "process" ]
 }
 
@@ -337,7 +395,7 @@ object Service "mongodb size-n" {
 {% if 'nfsenserver' in group_names %}
 object Service "nfsend procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_nfsend"
@@ -346,7 +404,7 @@ object Service "nfsend procs-n" {
 
 object Service "nfsen nfcapd procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_nfcapd"
@@ -355,7 +413,7 @@ object Service "nfsen nfcapd procs-n" {
 
 object Service "nfsen dumps size" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_var_lib_nfsen"
@@ -364,7 +422,7 @@ object Service "nfsen dumps size" {
 
 object Service "nfsen dumps age" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_var_lib_nfsen_age"
@@ -375,7 +433,7 @@ object Service "nfsen dumps age" {
 {% if 'ci' in group_names %}
 object Service "jenkins procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_jenkins"
@@ -384,7 +442,7 @@ object Service "jenkins procs-n" {
 
 object Service "monit procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_monit"
@@ -393,7 +451,7 @@ object Service "monit procs-n" {
 
 object Service "nginx procs-n" {
     import "generic-service"
-    host_name = "{{ nrpeclient_hostname }}"
+    host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_nginx"
@@ -401,9 +459,10 @@ object Service "nginx procs-n" {
 }
 
 {% endif %}
+{# for icinga2/nagvis #}
 {% if nrpeclient_parent is defined %}
-apply Dependency "parent-{{ nrpeclient_hostname }}" to Host {
+apply Dependency "parent-{{ inventory_hostname }}" to Host {
   parent_host_name = "{{ nrpeclient_parent }}"
-  assign where host.name == "{{ nrpeclient_hostname }}"
+  assign where host.name == "{{ inventory_hostname }}"
 }
 {% endif %}

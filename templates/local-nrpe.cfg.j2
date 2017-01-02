@@ -24,6 +24,8 @@ command[check_var_tmp]={{ np }}/check_disk -w 20% -c 10% -p /var/tmp
 command[check_total_procs]={{ np }}/check_procs -w {{ nrpeclient_nrpe_total_procs_w }} -c {{ nrpeclient_nrpe_total_procs_c }}
 command[check_procs_named]={{ np }}/check_procs -u bind -C named -w 1 -c 1
 command[check_procs_dnscrypt]={{ np }}/check_procs -C dnscrypt-proxy -w 1:5 -c 1:5
+command[check_procs_nginx]={{ np }}/check_procs -C nginx -w 1:5 -c 1:10
+command[check_procs_apache2]={{ np }}/check_procs -C apache2 -w 1:5 -c 1:10
 command[check_procs_ossec]={{ np }}/check_procs -u ossec -C ossec-monitord -w 1 -c 1
 command[check_procs_snort]={{ np }}/check_procs -u snort -C snort -w 1 -c 1
 command[check_procs_suricata]={{ np }}/check_procs -C suricata -w 1 -c 1
@@ -40,6 +42,7 @@ command[check_oom]={{ np }}/check_log -F /var/log/syslog -O /var/tmp/syslog -q '
 
 command[check_mem_pl]={{ np }}/check_mem.pl -f -w 2 -c 1
 command[check_mem]={{ np }}/check_mem -w 75 -c 90
+command[check_oom_killer]={{ np }}/check_oom_killer
 
 command[check_ctmp]={{ np }}/count_file.pl -d /tmp -w {{ nrpeclient_nrpe_count_tmp_w }} -c {{ nrpeclient_nrpe_count_tmp_c }} -x {{ nrpeclient_nrpe_size_tmp_w }} -s {{ nrpeclient_nrpe_size_tmp_c }}
 command[check_cvar_log]={{ np }}/count_file.pl -d /var/log -w {{ nrpeclient_nrpe_count_log_w }} -c {{ nrpeclient_nrpe_count_log_c }} -x {{ nrpeclient_nrpe_size_log_w }} -s {{ nrpeclient_nrpe_size_log_c }}
@@ -70,3 +73,10 @@ command[check_sar_task]={{ np }}/check_sar_perf.py task
 command[check_sar_kernel]={{ np }}/check_sar_perf.py kernel
 command[check_sar_disk]={{ np }}/check_sar_perf.py disk <yourdisk>
 
+{% if ansible_os_family == 'Darwin' %}
+command[check_osx_mem]=/usr/local/share/OSX-Monitoring-Tools/check_osx_mem/build/Release/check_osx_mem -w 80 -c 90
+command[check_osx_smc]=/usr/local/share/OSX-Monitoring-Tools/check_osx_smc/build/Release/check_osx_smc -r TC0D,F0Ac -w 85,3800 -c 100,5200 -s c
+command[check_osx_smart]=/usr/local/share/OSX-Monitoring-Tools/check_smart.sh -d disk0
+command[check_cLibraryLogsDiagnosticReports]={{ np }}/count_file.pl -d /Library/Logs/DiagnosticReports -w {{ nrpeclient_nrpe_count_crash_w }} -c {{ nrpeclient_nrpe_count_crash_c }} -x 300000 -s 500000
+
+{% endif %}

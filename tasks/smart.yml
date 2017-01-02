@@ -1,0 +1,64 @@
+---
+
+## https://www.thomas-krenn.com/en/wiki/SMART_Attributes_Monitoring_Plugin
+## https://serverfault.com/questions/447104/the-best-nagios-plugin-for-smart
+## https://askubuntu.com/questions/325283/how-do-i-check-the-health-of-a-ssd
+
+- name: install smart monitoring packages
+  package: name={{ item }} state=present
+  with_items:
+    - smartmontools
+    - libconfig-json-perl
+
+- name: git clone check smart attributes plugins
+  git:
+    repo: https://github.com/thomas-krenn/check_smart_attributes.git
+    dest: "{{ np }}/github-check_smart_attributes"
+
+- name: install check_smart_attributes plugin
+  copy:
+    src: "{{ np }}/github-check_smart_attributes/check_smart_attributes"
+    dest: "{{ np }}/check_smart_attributes"
+    mode: 0755
+    backup: yes
+
+- set_fact:
+    smartdb_json: "{{ nrpeclient_disks_smartdb_json }}"
+  when: nrpeclient_disks_smartdb_json != ''
+- set_fact:
+    smartdb_json: "{{ np }}/github-check_smart_attributes/check_smartdb.json"
+  when: nrpeclient_disks_smartdb_json == ''
+
+## FIXME! might need some update depending on disk model
+- name: install check_smart_attributes config
+  copy:
+    src: "{{ smartdb_json }}"
+    dest: "/etc/nagios-plugins/config/check_smartdb.json"
+    mode: 0644
+    backup: yes
+#    remote_src:
+
+- name: add sudo authorization for smartctl and user nagios
+  lineinfile:
+    dest: /etc/sudoers.d/check_smart_attributes
+    line: "nagios ALL=(root)NOPASSWD:/usr/sbin/smartctl"
+    mode: 0644
+    backup: yes
+    create: yes
+
+## https://wiki.archlinux.org/index.php/S.M.A.R.T.
+- name: enabling smartd
+  lineinfile:
+    dest: /etc/default/smartmontools
+    regexp: '^start_smartd=.*'
+    line: 'start_smartd=yes'
+    backup: yes
+
+- name: configure smartd
+  lineinfile:
+    dest: /etc/smartd.conf
+    line: 'DEVICESCAN -H -m root -a -o on -S on -n standby,q -s (S/../.././02|L/../../6/03) -W 4,35,40'
+    backup: yes
+  notify:
+    - restart smartd
+

@@ -57,6 +57,7 @@ nrpeclient_extra_plugins:
   - { u: 'https://raw.githubusercontent.com/nickanderson/check-sar-perf/master/check_sar_perf.py', d: 'check_sar_perf.py', checksum: 'sha256:eb17903dfa1d00f9159562a4aae6e32e6450ad6e02dd522cc96af1137ff01404' }
   - { u: 'https://raw.githubusercontent.com/thehunmonkgroup/nagios-plugin-file-ages-in-dirs/master/check_file_ages_in_dirs', d: 'check_file_ages_in_dirs', checksum: 'sha256:9c8102f8b741e7f05e7e7a0448586577862fb8db7f364e56fb96e597def29235' }
   - { u: 'https://raw.githubusercontent.com/thehunmonkgroup/nagios-plugin-newest-file-age/master/check_newest_file_age', d: 'check_newest_file_age', checksum: 'sha256:2ffaa0b9d4435c546976fc1cb7631a7efc087c07d4b7489a2b4dc2b3c77f59bd' }
+  - { u: 'https://agir.april.org/projects/admins/repository/revisions/master/raw/puppetmaster/modules/april_nagios/files/check_oom_killer', d: 'check_oom_killer', checksum: 'sha256:7dc5bce1c9130c29bc663410d3e65c9f4bc36e60ef06bf86b1cb9d4865ee7b62' }
 #  - { u: '', d: '', checksum: 'sha256:aaaa' }
 
 nrpeclient_icinga2_extra_vars: []

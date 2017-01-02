@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-## $Id: check_aide.pl 2211 2016-01-10 14:25:21Z julien $
+## $Id: check_aide.pl 3427 2016-11-30 04:02:20Z julien $
 # nagios: -epn
 ## get some quick stats from aide/HIDS log file to nagios w perfdata
 ##

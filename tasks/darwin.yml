@@ -10,6 +10,7 @@
     - nrpe
 #    - nagios-plugins-jedda
     - p5-html-strip
+    - smartmontools
   when: macportsdir.stat.exists
 
 # jedda?
@@ -23,4 +24,48 @@
 - name: initiate nrpe config from sample
   copy: src={{ nrpeclient_conf }}.sample dest={{ nrpeclient_conf }} mode=0644 remote_src=yes
   when: not nconf.stat.exists
+
+## FIXME! not idempotent
+## http://www.digitaltransitions.ca/blog/files/acl-settings.php
+- name: check current acl
+  shell: "ls -le /Library/Logs | grep -A 1 DiagnosticReports"
+  register: ls
+  changed_when: false
+- name: add some read acl to user nagios
+  command: "chmod +a 'user:nagios allow read,execute,readattr,readextattr,readsecurity' {{ item }}"
+  with_items:
+    - /Library/Logs/DiagnosticReports
+  when: ls.stdout.find('user:nagios') == -1
+
+## https://github.com/jedda/OSX-Monitoring-Tools
+- name: ensure directory exists
+  file: dest=/usr/local/share state=directory mode=0755
+- name: Download jedda OSX monitoring tools
+  git:
+    repo: https://github.com/jedda/OSX-Monitoring-Tools
+    dest: /usr/local/share/OSX-Monitoring-Tools
+    update: no
+    force: no
+## to validate sdk for your osx release, check /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
+##  or use env 'MACOSX_DEPLOYMENT_TARGET 10.12' ?
+- name: build jedda plugins
+  command: "/usr/bin/xcodebuild -project {{ item }}.xcodeproj -sdk macosx10.12 chdir=/usr/local/share/OSX-Monitoring-Tools/{{ item }} create=/usr/local/share/OSX-Monitoring-Tools/{{ item }}/build/Release/{{ item }}"
+  with_items:
+    - check_osx_mem
+    - check_osx_smc
+- name: check jedda plugins' permissions
+  file: dest={{ item }} state=file mode=0755
+  with_items:
+    - /usr/local/share/OSX-Monitoring-Tools/check_osx_mem/build/Release/check_osx_mem
+    - /usr/local/share/OSX-Monitoring-Tools/check_osx_smc/build/Release/check_osx_smc
+    - /usr/local/share/OSX-Monitoring-Tools/check_smart.sh
+    - /usr/local/share/OSX-Monitoring-Tools/check_osx_launchd.sh
+- name: update path for check_smart.sh
+  replace:
+    dest: /usr/local/share/OSX-Monitoring-Tools/check_smart.sh
+    regexp: /opt/local/libexec/nagios/smartctl
+    replace: /opt/local/sbin/smartctl
+    backup: yes
+
+
 
