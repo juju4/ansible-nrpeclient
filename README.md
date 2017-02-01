@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/juju4/ansible-nrpeclient.svg?branch=master)](https://travis-ci.org/juju4/ansible-nrpeclient)
+[![Build Status - Master](https://travis-ci.org/juju4/ansible-nrpeclient.svg?branch=master)](https://travis-ci.org/juju4/ansible-nrpeclient)
+[![Build Status - Devel](https://travis-ci.org/juju4/ansible-nrpeclient.svg?branch=devel)](https://travis-ci.org/juju4/ansible-nrpeclient/branches)
 # NRPE ansible role
 
 A simple ansible role to setup nrpe daemon for remote monitoring.
@@ -10,6 +11,7 @@ You can use it also to remove configuration.
 It was tested on the following versions:
  * 1.9
  * 2.0
+ * 2.2
 
 ### Operating systems
 

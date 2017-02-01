@@ -338,6 +338,7 @@ object Service "count file /tmp-n" {
     check_command = "check_nrpe_1arg"
     enable_notifications = 0
     vars.ARG1 = "check_ctmp"
+#    enable_active_checks = false
 }
 
 object Service "count file /var/log-n" {
@@ -462,12 +463,101 @@ object Service "mongodb size-n" {
     groups = [ "process" ]
 }
 
+object Service "mhn errors size-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_mhn_errors"
+}
+
 object Service "nginx procs-n" {
     import "generic-service"
     host_name = "{{ inventory_hostname }}"
     check_command = "check_nrpe_1arg"
     enable_notifications = 1
     vars.ARG1 = "check_procs_nginx"
+    groups = [ "process" ]
+}
+
+object Service "mongod procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mongod"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor geoloc procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_geoloc"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor honeymap procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_honeymap"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor feedbroker procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_feedbroker"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor celery_beat procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_celery_beat"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor celery_worker procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_celery_worker"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor collector procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 0
+    vars.ARG1 = "check_procs_mhn_collector"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor uwsgi procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_uwsgi"
+    groups = [ "process" ]
+}
+
+object Service "mhn supervisor mnemosyne procs-n" {
+    import "generic-service"
+    host_name = "{{ inventory_hostname }}"
+    check_command = "check_nrpe_1arg"
+    enable_notifications = 1
+    vars.ARG1 = "check_procs_mhn_mnemosyne"
     groups = [ "process" ]
 }
 

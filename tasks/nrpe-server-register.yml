@@ -19,11 +19,17 @@
     - name: deploy client configuration on icinga2 server
       template: src=hosts-template.conf.j2 dest="/etc/icinga2/conf.d/hosts-monclient-{{ inventory_hostname }}.conf" mode=0644
       delegate_to: "{{ nrpeclient_server }}"
+      register: icinga2conf
       notify:
         - restart icinga2 server
     #  when: nrpe_mode is defined and nrpe_mode
     ## FIXME! nrpeclient_server conditions does not seem to work
       when: nrpeclient_type is defined and nrpeclient_type == 'icinga2'
+    - name: validate icinga2 multiple conf files if change
+      command: "icinga2 daemon --validate"
+      delegate_to: "{{ nrpeclient_server }}"
+      changed_when: false
+      when: nrpeclient_type is defined and nrpeclient_type == 'icinga2' and icinga2conf.changed
 
     - name: deploy client configuration on nagios server
       template: src=hosts-template-nagios.cfg.j2 dest=/etc/nagios3/conf.d/hosts-monclient-{{ ansible_fqdn }}.cfg mode=0644

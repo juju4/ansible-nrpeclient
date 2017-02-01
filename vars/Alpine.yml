@@ -4,6 +4,7 @@ nrpeclient_packages:
   - nrpe
   - nagios-plugins
   - acl
+  - ca-certificates
 
 nrpeclient_conf: /etc/nrpe.cfg
 nrpeclient_confdir: /etc/nrpe.d
