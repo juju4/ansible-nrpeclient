@@ -58,6 +58,7 @@ my $DEBUG	= 0;
 
 ## for debian/ubuntu
 my $LOCK_FILE = "/var/lib/dpkg/lock";
+## FIXME! return incorrect informations!!!! https://superuser.com/questions/199869/check-number-of-pending-security-updates-in-ubuntu
 my $CMD_APT = "/usr/bin/apt-get -s upgrade";
 #my $CMD_APT = "/usr/bin/aptitude -v -s -y safe-upgrade";
 #my $CMD_APT = "/usr/lib/update-notifier/apt-check";
@@ -83,7 +84,7 @@ GetOptions(    help => \$help,
 my ($PROGNAME) = $0 =~ m#.*/(.*)#;
 
 if ($help) {
-	print_revision($PROGNAME,"\$Revision: 3574 $VERSION \$");
+	print_revision($PROGNAME,"\$Revision: 3837 $VERSION \$");
 	print "Copyright (c) 2005 Francesc Guasch - Ortiz
 
 	Perl Check debian packages plugin for Nagios
@@ -94,7 +95,7 @@ if ($help) {
 }
 
 if ($version) {
-	print_revision($PROGNAME,"\$Revision: 3574 $VERSION \$");
+	print_revision($PROGNAME,"\$Revision: 3837 $VERSION \$");
 	exit($ERRORS{OK});
 }
 

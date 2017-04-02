@@ -12,9 +12,9 @@ object Host "{{ inventory_hostname }}" {
     address = "{{ nrpeclient_hostname }}"
 #    address = "{{ ansible_fqdn }}"
 {% if nrpeclient_checkcommand is defined %}
-   check_command   = "{{ nrpeclient_checkcommand }}"
+    check_command   = "{{ nrpeclient_checkcommand }}"
 {% else %}
-   check_command   = "hostalive"
+    check_command   = "hostalive"
 {% endif %}
 {% if nrpeclient_group is defined %}
     groups += [ "{{ nrpeclient_group }}" ]
@@ -25,9 +25,8 @@ object Host "{{ inventory_hostname }}" {
 {% endfor %}
 {% endif %}
 {% if snmpd_v2_snmpcommunity is defined and snmpd_v2_snmpcommunity != '' %}
-   vars.snmp_community = "{{ snmpd_v2_snmpcommunity }}"
+    vars.snmp_community = "{{ snmpd_v2_snmpcommunity }}"
 {% endif %}
-
 }
 {% endif %}
 
