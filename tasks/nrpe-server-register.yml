@@ -4,13 +4,8 @@
   debug: var=nrpeclient_server
 #- fail: msg="Server is not configured. Missing commands-custom.conf... Stopping!"
 - debug: msg="Server is not configured. Missing commands-custom.conf... Skipping server configuration!"
-  when: not nrpecmd.stat.exists and nrpeclient_server is defined and nrpeclient_server != 'test-kitchen' and nrpeclient_server != 'ansible_fqdn_servername'
+  when: nrpeclient_server is defined and nrpeclient_server != 'test-kitchen' and nrpeclient_server != 'ansible_fqdn_servername'
 - block:
-    - stat: path=/etc/icinga2/conf.d/commands-custom.conf
-      register: nrpecmd
-      delegate_to: "{{ nrpeclient_server }}"
-      changed_when: False
-
     - name: ensure right permissions for /etc/icinga2/conf.d
       file: dest=/etc/icinga2/conf.d state=directory mode=0755
       delegate_to: "{{ nrpeclient_server }}"
@@ -44,5 +39,5 @@
       when: nrpeclient_add_to_etchosts is defined and nrpeclient_add_to_etchosts
 
   when: (nrpeclient_server is defined and nrpeclient_server != 'test-kitchen' and nrpeclient_server != 'ansible_fqdn_servername')
-#  when: not (not nrpecmd.stat.exists and nrpeclient_server is defined and nrpeclient_server != 'test-kitchen' and nrpeclient_server != 'ansible_fqdn_servername')
+
 
