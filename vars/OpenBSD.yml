@@ -1,0 +1,21 @@
+---
+
+nrpeclient_packages:
+  - nrpe
+#  - nagios-plugins
+#  - libhtml-strip-perl
+#  - p5-Monitoring-Plugin
+#  - p5-Monitoring-Plugin--
+  - monitoring-plugins
+  - p5-Monitoring-Plugin-0.39p0
+  - p5-HTML-StripScripts
+
+nrpeclient_conf: /etc/nrpe.cfg
+nrpeclient_confdir: /etc/nrpe.d
+nrpe_svc: nrpe
+np: /usr/local/libexec/nagios
+
+perl_bin: /usr/bin/perl
+
+nrpeclient_openntpd_conf: /etc/ntpd.conf
+

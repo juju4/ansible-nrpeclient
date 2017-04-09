@@ -1,0 +1,9 @@
+---
+
+## p5-Nagios-Plugin is not available as pre-built binary... need to build it, assume ports src tree is available
+#- name: Building p5-Nagios-Plugin
+#  command: "{{ item }}"
+#  with_items:
+#  args:
+#    chdir: /usr/ports/net/nagios/p5-Nagios-Plugin/
+#    creates:

@@ -2,6 +2,7 @@
 
 - name: ensure openntpd is installed
   package: name=openntpd state=present
+  when: ansible_system != 'OpenBSD'
 
 - name: ensure openntpd listens on localhost
   lineinfile:
