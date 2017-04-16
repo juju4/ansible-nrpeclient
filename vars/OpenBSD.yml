@@ -1,7 +1,7 @@
 ---
 
 nrpeclient_packages:
-  - nrpe
+  - nrpe--
 #  - nagios-plugins
 #  - libhtml-strip-perl
 #  - p5-Monitoring-Plugin
