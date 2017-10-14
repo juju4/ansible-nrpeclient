@@ -85,6 +85,8 @@
     dest: /etc/sudoers
     regexp: '^nagios.*launchctl.*'
     line: 'nagios ALL=(ALL) NOPASSWD: /bin/launchctl list'
+    backup: yes
+    validate: 'visudo -cf %s'
 
 #- name: update check_osx_launchd.sh to use sudo
 #  replace:
