@@ -1,0 +1,20 @@
+---
+
+nrpeclient_packages:
+  - nagios-nrpe-server
+  - nagios-plugins
+  - nagios-nrpe-plugin
+  - nagios-plugins-contrib
+  - libhtml-strip-perl
+  - sysstat
+  - acl
+
+nrpeclient_conf: /etc/nagios/nrpe_local.cfg
+nrpeclient_confdir: /etc/nagios/nrpe.d
+nrpe_svc: nagios-nrpe-server
+np: /usr/lib/nagios/plugins
+
+perl_bin: /usr/bin/perl
+
+nrpeclient_openntpd_conf: /etc/openntpd/ntpd.conf
+
