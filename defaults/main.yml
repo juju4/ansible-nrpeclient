@@ -63,7 +63,7 @@ monitor_sensors: false
 
 nrpeclient_extra_plugins:
   - { u: 'https://raw.githubusercontent.com/jasonhancock/nagios-memory/master/plugins/check_mem', d: 'check_mem', checksum: 'sha256:75cb473535c56149f4a8394206c2ed779c8d8c754affafada75883a5d0bdb71f' }
-  - { u: 'https://raw.githubusercontent.com/justintime/nagios-plugins/master/check_mem/check_mem.pl', d: 'check_mem.pl', checksum: 'sha256:59c0e8ff1df4b78470cc8b6e7bf4767b0a6b095ec3db4ffeee7bc09ce3bc8a31' }
+  - { u: 'https://raw.githubusercontent.com/justintime/nagios-plugins/master/check_mem/check_mem.pl', d: 'check_mem.pl', checksum: 'sha256:47666dce9d11d5908c3e775d229dcbdcd11ce13fd5ea576859987eccbdfc3efa' }
   - { u: 'https://raw.githubusercontent.com/nickanderson/check-sar-perf/master/check_sar_perf.py', d: 'check_sar_perf.py', checksum: 'sha256:eb17903dfa1d00f9159562a4aae6e32e6450ad6e02dd522cc96af1137ff01404' }
   - { u: 'https://raw.githubusercontent.com/thehunmonkgroup/nagios-plugin-file-ages-in-dirs/master/check_file_ages_in_dirs', d: 'check_file_ages_in_dirs', checksum: 'sha256:9c8102f8b741e7f05e7e7a0448586577862fb8db7f364e56fb96e597def29235' }
   - { u: 'https://raw.githubusercontent.com/thehunmonkgroup/nagios-plugin-newest-file-age/master/check_newest_file_age', d: 'check_newest_file_age', checksum: 'sha256:2ffaa0b9d4435c546976fc1cb7631a7efc087c07d4b7489a2b4dc2b3c77f59bd' }
