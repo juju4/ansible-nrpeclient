@@ -391,6 +391,7 @@ object Service "updates-n" {
 ## some linux system are slow to answer
     check_timeout = 60
 {% endif %}
+    check_interval = 6h
     groups = [ "updates" ]
 }
 
