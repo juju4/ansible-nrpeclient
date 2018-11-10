@@ -16,7 +16,7 @@
 #       - nagios-plugins-jedda
         - p5-html-strip
 ## check_updates.pl
-        - perl5.24
+        - perl5
         - smartmontools
       when: macportsdir.stat.exists
 
@@ -98,3 +98,8 @@
 #    - { re: '^launchctl list', rep: 'sudo launchctl list' }
 #    - { re: '^preset_exceptions=".*"', rep: "preset_exceptions=\"{{ nrpeclient_osx_launchd_preset_exceptions }}\"" }
 
+- name: update permission to list directories
+  command: "chmod +a 'user:nagios allow list' {{ item }}"
+  with_items:
+    - /Library/Logs/DiagnosticReports
+  when: ansible_distribution == 'MacOSX' and ansible_distribution_version.split('.')[1]|int >= 13
