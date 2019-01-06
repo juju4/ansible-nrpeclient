@@ -82,7 +82,7 @@
     dest: "{{ nrpeclient_conf }}"
     regexp: '^server_address=.*$'
     line: "server_address={{ nrpeclient_nrpebind }}"
-    insertafter='^#server_address=127.0.0.1'
+    insertafter: '^#server_address=127.0.0.1'
   notify:
     - restart nrpe
     - restart nrpe - darwin
