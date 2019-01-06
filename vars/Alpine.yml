@@ -14,4 +14,3 @@ np: /usr/lib/nagios/plugins
 perl_bin: /usr/bin/perl
 
 nrpeclient_openntpd_conf: /etc/ntpd.conf
-

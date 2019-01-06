@@ -14,5 +14,3 @@ nrpe_svc: nrpe
 np: /usr/lib64/nagios/plugins
 
 perl_bin: /usr/bin/perl
-
-

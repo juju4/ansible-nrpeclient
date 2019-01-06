@@ -20,7 +20,9 @@
       with_items:
 ## or 'setfacl -m u:nagios:r-- /var/log/aide/aide.log'
 #        - { regexp: 'savelog -t -g adm -m 640', replace: 'savelog -t -g adm -m 644' }
-        - { regexp: 'savelog -t -g adm -m 64? -u root -c 7 "$LOGFILE" > /dev/null$', replace: 'savelog -t -g adm -m 640 -u root -c 7 "$LOGFILE" > /dev/null && setfacl -m u:nagios:r-- "$LOGFILE" 2> /dev/null' }
+        - { regexp: 'savelog -t -g adm -m 64? -u root -c 7 "$LOGFILE" > /dev/null$',
+            replace: 'savelog -t -g adm -m 640 -u root -c 7 "$LOGFILE" > /dev/null && setfacl -m u:nagios:r-- "$LOGFILE" 2> /dev/null'
+          }
       when: cronaide.stat.exists
     - name: check if aide.log is present
       stat: path=/var/log/aide/aide.log
@@ -54,7 +56,10 @@
     - restart nrpe - darwin
 - name: Review nrpe configuration allowed_hosts - replace
   replace:
-    dest="{{ nrpeclient_conf }}" regexp="{{ item.regexp }}" replace="{{ item.replace }}" backup=yes
+    dest: "{{ nrpeclient_conf }}"
+    regexp: "{{ item.regexp }}"
+    replace: "{{ item.replace }}"
+    backup: yes
   with_items:
     - { regexp: '^allowed_hosts=127.0.0.1.*$', replace: 'allowed_hosts=127.0.0.1,{{ nrpeclient_nrpeserver }}' }
   notify:
@@ -63,7 +68,10 @@
 ## local_nrpe.cfg
 - name: Review nrpe configuration allowed_hosts - lineinfile
   lineinfile:
-    dest="{{ nrpeclient_conf }}" regexp="{{ item.regexp }}" line="{{ item.l }}" backup=yes
+    dest: "{{ nrpeclient_conf }}"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.l }}"
+    backup: yes
   with_items:
     - { regexp: '^allowed_hosts=127.0.0.1.*$', l: 'allowed_hosts=127.0.0.1,{{ nrpeclient_nrpeserver }}' }
   notify:
@@ -71,12 +79,14 @@
     - restart nrpe - darwin
 - name: Review nrpe configuration binding
   lineinfile:
-    dest='{{ nrpeclient_conf }}' regexp='^server_address=.*$' line='server_address={{ nrpeclient_nrpebind }}' insertafter='^#server_address=127.0.0.1'
+    dest: "{{ nrpeclient_conf }}"
+    regexp: '^server_address=.*$'
+    line: "server_address={{ nrpeclient_nrpebind }}"
+    insertafter='^#server_address=127.0.0.1'
   notify:
     - restart nrpe
     - restart nrpe - darwin
-  when: nrpeclient_nrpebind is defined and nrpeclient_nrpebind != ""
+  when: nrpeclient_nrpebind is defined and nrpeclient_nrpebind
 
 - include: smart.yml
   when: nrpeclient_disks_smart != []
-

@@ -17,13 +17,12 @@
 - name: restart icinga2 server
   service: name=icinga2 state=restarted
   delegate_to: "{{ nrpeclient_server }}"
-  when: nrpeclient_server is defined and nrpeclient_server != ""
+  when: nrpeclient_server is defined and nrpeclient_server
 
 - name: restart nagios server
   service: name=nagios3 state=restarted
   delegate_to: "{{ nrpeclient_server }}"
-  when: nrpeclient_server is defined and nrpeclient_server != ""
+  when: nrpeclient_server is defined and nrpeclient_server
 
 - name: restart smartmontools
   service: name=smartmontools state=restarted
-

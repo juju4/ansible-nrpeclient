@@ -15,4 +15,3 @@
 - name: ensure openntpd is started and enabled
   service: name=openntpd state=started enabled=yes
   when: ansible_system == 'Linux'
-

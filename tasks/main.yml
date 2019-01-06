@@ -19,8 +19,7 @@
       when: ansible_system == 'Linux'
     - block:
         - name: nrpe & plugins packages install - openbsd
-          openbsd_pkg: name={{item}} state=present
-          with_items: "{{nrpeclient_packages}}"
+          openbsd_pkg: name={{ nrpeclient_packages }} state=present
       when: ansible_system == 'OpenBSD'
     - include: darwin.yml
       when: ansible_os_family == 'Darwin'
@@ -28,7 +27,12 @@
     - include: nrpe.yml
     - include: nrpe-server-register.yml
     - include: ntp.yml
-      when: nrpeclient_watch_ntp and not (ansible_virtualization_type is defined and (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker")) and not ansible_os_family == "RedHat"
+      when: >
+        nrpeclient_watch_ntp and
+        not (ansible_virtualization_type is defined and
+              (ansible_virtualization_type == "lxc" or ansible_virtualization_type == "docker")
+            ) and
+        not ansible_os_family == "RedHat"
 
     - include: chrony.yml
       when: nrpeclient_watch_ntp and ansible_os_family == "RedHat"
@@ -40,4 +44,3 @@
 
 - include: remove.yml
   when: monclient_remove is defined and monclient_remove
-

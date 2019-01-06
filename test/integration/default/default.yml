@@ -10,4 +10,3 @@
     - nrpeclient_server: test-kitchen
   roles:
     - juju4.nrpeclient
-

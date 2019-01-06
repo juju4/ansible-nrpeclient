@@ -14,4 +14,3 @@ np: /opt/local/libexec/nagios
 perl_bin: /opt/local/bin/perl5
 
 nrpeclient_openntpd_conf: /opt/local/etc/ntpd.conf
-
