@@ -11,12 +11,20 @@
 - debug: var=nrpeclient_packages
 - block:
     - name: nrpe & plugins packages install
-      package: name={{nrpeclient_packages}} state=present
+      package: name={{ nrpeclient_packages }} state=present
 ## on lxc containers: "error: unpacking of archive failed on file /usr/sbin/fping: cpio: cap_set_file"
       ignore_errors: true
-## FIXME! fatal: [test-ob]: FAILED! => {"changed": false, "failed": true, "msg": "failed in get_package_state(): Error from http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-Monitoring-Plugin-0.39p0,.tgz\nftp: Error retrieving file: 404 Not Found\nError from http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-Monitoring-Plugin-0.39p0,.tgz\nftp: Error retrieving file: 404 Not Found\nError from http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-HTML-StripScripts].tgz\nftp: Error retrieving file: 404 Not Found\n"}
+## FIXME! fatal: [test-ob]: FAILED! => {"changed": false, "failed": true, "msg": "failed in get_package_state():
+##      Error from http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-Monitoring-Plugin-0.39p0,.tgz\nftp:
+##      Error retrieving file: 404 Not Found\nError from
+##      http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-Monitoring-Plugin-0.39p0,.tgz\nftp: Error
+##      retrieving file: 404 Not Found\nError from
+##      http://ftp.OpenBSD.org/pub/OpenBSD/6.0/packages/i386/p5-HTML-StripScripts].tgz\nftp:
+##      Error retrieving file: 404 Not Found\n"}
       #when: ansible_system == 'Linux' or ansible_system == 'OpenBSD'
       when: ansible_system == 'Linux'
+      register: pkg_result
+      until: pkg_result is success
     - block:
         - name: nrpe & plugins packages install - openbsd
           openbsd_pkg: name={{ nrpeclient_packages }} state=present

@@ -9,6 +9,8 @@
   with_items:
     - smartmontools
     - libconfig-json-perl
+  register: pkg_result
+  until: pkg_result is success
 
 - name: git clone check smart attributes plugins
   git:
@@ -23,12 +25,14 @@
     mode: 0755
     backup: yes
 
-- set_fact:
+- name: Set fact smartdb_json
+  set_fact:
     smartdb_json: "{{ nrpeclient_disks_smartdb_json }}"
-  when: nrpeclient_disks_smartdb_json != ''
-- set_fact:
+  when: nrpeclient_disks_smartdb_json
+- name: Set fact smartdb_json if undefined
+  set_fact:
     smartdb_json: "{{ np }}/github-check_smart_attributes/check_smartdb.json"
-  when: nrpeclient_disks_smartdb_json == ''
+  when: not nrpeclient_disks_smartdb_json
 
 ## FIXME! might need some update depending on disk model
 - name: install check_smart_attributes config

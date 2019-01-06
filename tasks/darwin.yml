@@ -1,11 +1,16 @@
 ---
 
 ## FIXME! should install macports when not existing
-- stat: path=/opt/local/var/macports
+- name: Check if macports is present
+  stat: path=/opt/local/var/macports
   register: macportsdir
 - block:
     - name: Google Santa | ensure config set to monitor mode
-      osx_defaults: domain=/var/db/santa/config.plist key=ClientMode value=0 type=int
+      osx_defaults:
+        domain: /var/db/santa/config.plist
+        key: ClientMode
+        value: 0
+        type: int
       when: (harden_darwin_santa_mode == 'LOCKDOWN' or harden_darwin_santa_mode == 2)
 
     - name: Macports packages
@@ -19,10 +24,16 @@
         - perl5
         - smartmontools
       when: macportsdir.stat.exists
+      register: pkg_result
+      until: pkg_result is success
 
   always:
     - name: Google Santa | ensure config set to lockdown mode
-      osx_defaults: domain=/var/db/santa/config.plist key=ClientMode value={{ harden_darwin_santa_mode }} type=int
+      osx_defaults:
+        domain: /var/db/santa/config.plist
+        key: ClientMode
+        value: "{{ harden_darwin_santa_mode }}"
+        type: int
       when: (harden_darwin_santa_mode == 'LOCKDOWN' or harden_darwin_santa_mode == 2)
 
 # jedda?
@@ -31,10 +42,15 @@
 #    - check_osx_launchd.sh
 #    - check_folder_size.sh
 
-- stat: path={{ nrpeclient_conf }}
+- name: Check if nrpe.conf is present
+  stat: path={{ nrpeclient_conf }}
   register: nconf
 - name: initiate nrpe config from sample
-  copy: src={{ nrpeclient_conf }}.sample dest={{ nrpeclient_conf }} mode=0644 remote_src=yes
+  copy:
+    src: "{{ nrpeclient_conf }}.sample"
+    dest: "{{ nrpeclient_conf }}"
+    mode: '0644'
+    remote_src: yes
   when: not nconf.stat.exists
 
 ## FIXME! not idempotent
@@ -57,12 +73,17 @@
 #    repo: https://github.com/jedda/OSX-Monitoring-Tools.git
     repo: https://github.com/juju4/OSX-Monitoring-Tools.git
     dest: /usr/local/share/OSX-Monitoring-Tools
+    version: "{{ jedda_osx_tools_version | default('8f379e98fd5182696a46bda4e9001e39337d8326') }}"
     update: no
     force: no
-## to validate sdk for your osx release, check /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
+## to validate sdk for your osx release, check
+##      /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
 ##  or use env 'MACOSX_DEPLOYMENT_TARGET 10.12' ?
 - name: build jedda plugins
-  command: "/usr/bin/xcodebuild -project {{ item }}.xcodeproj -sdk macosx10.12 chdir=/usr/local/share/OSX-Monitoring-Tools/{{ item }} creates=/usr/local/share/OSX-Monitoring-Tools/{{ item }}/build/Release/{{ item }}"
+  command: "/usr/bin/xcodebuild -project {{ item }}.xcodeproj -sdk macosx10.12"
+  args:
+    chdir: "/usr/local/share/OSX-Monitoring-Tools/{{ item }}"
+    creates: "/usr/local/share/OSX-Monitoring-Tools/{{ item }}/build/Release/{{ item }}"
   with_items:
     - check_osx_mem
     - check_osx_smc

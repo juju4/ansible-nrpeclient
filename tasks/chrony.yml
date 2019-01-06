@@ -2,6 +2,8 @@
 
 - name: ensure chrony is installed
   package: name=chrony state=present
+  register: pkg_result
+  until: pkg_result is success
 
 - name: ensure chrony is started and enabled
   service: name=chronyd state=started enabled=yes
