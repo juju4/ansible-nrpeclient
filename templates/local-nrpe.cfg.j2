@@ -1,4 +1,4 @@
-## {{ ansible_managed }}
+{{ ansible_managed | comment }}
 ## /etc/nagios/nrpe.d/local-nrpe.cfg
 
 command[check_users]={{ np }}/check_users -w {{ nrpeclient_nrpe_users_w }} -c {{ nrpeclient_nrpe_users_c }}

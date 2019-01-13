@@ -1,4 +1,4 @@
-## {{ ansible_managed }}
+{{ ansible_managed | comment }}
 ## Icinga2 host template
 
 {% if nrpeclient_hostname is defined and nrpeclient_server is defined and nrpeclient_hostname != nrpeclient_server %}
