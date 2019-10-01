@@ -10,14 +10,17 @@ env:
 #    run_opts: ""
   - distribution: centos
     version: 7
+    suite: default
     init: /usr/lib/systemd/systemd
     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
   - distribution: ubuntu
     version: 18.04
+    suite: default
     init: /lib/systemd/systemd
     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
   - distribution: ubuntu
     version: 16.04
+    suite: default
     init: /lib/systemd/systemd
     run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
 #  - distribution: ubuntu
@@ -28,6 +31,11 @@ env:
 #    version: 12.04
 #    init: /sbin/init
 #    run_opts: ""
+  - distribution: ubuntu
+    version: 18.04
+    suite: default-plugins
+    init: /lib/systemd/systemd
+    run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
 
 services:
   - docker
@@ -65,6 +73,7 @@ script:
     && (echo 'Idempotence test: pass' && exit 0)
     || (echo 'Idempotence test: fail' && cat /tmp/idempotency.log && exit 0)
 
+after_script:
   # Clean up
   - 'sudo docker stop "$(cat ${container_id})"'
 
