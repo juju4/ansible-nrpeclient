@@ -4,7 +4,7 @@
   include_vars: "{{ ansible_distribution }}.yml"
 - name: Include version-specific variables for Ubuntu.
   include_vars: "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
-  when: ansible_distribution == 'Ubuntu'
+  when: ansible_distribution == 'Ubuntu' or ansible_os_family == 'RedHat'
 
 - debug: var=monclient_remove
 - debug: var=ansible_system
