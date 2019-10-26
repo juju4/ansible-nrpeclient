@@ -3,7 +3,34 @@
 nrpeclient_packages:
   - nrpe
   - perl
-  - nagios-plugins-all
+## FIXME! Depsolve Error occured:
+#    Problem: package nagios-plugins-all-2.2.2-2.20190926git1b8ad57.el8.x86_64 requires nagios-plugins-disk_smb,
+#    but none of the providers can be installed\n  - conflicting requests\n  - nothing provides perl(utf8::all)
+#    needed by nagios-plugins-disk_smb-2.2.2-2.20190926git1b8ad57.el8.x86_64
+#  - nagios-plugins-all
+  - nagios-plugins-by_ssh
+  - nagios-plugins-dhcp
+  - nagios-plugins-dig
+  - nagios-plugins-disk
+  - nagios-plugins-dns
+  - nagios-plugins-file_age
+  - nagios-plugins-fping
+  - nagios-plugins-http
+  - nagios-plugins-icmp
+  - nagios-plugins-load
+  - nagios-plugins-log
+  - nagios-plugins-mailq
+  - nagios-plugins-mysql
+  - nagios-plugins-ntp
+  - nagios-plugins-ping
+  - nagios-plugins-procs
+  - nagios-plugins-sensors
+  - nagios-plugins-smtp
+  - nagios-plugins-ssh
+  - nagios-plugins-swap
+  - nagios-plugins-tcp
+  - nagios-plugins-time
+  - nagios-plugins-users
   - net-tools
   - nagios-plugins-nrpe
   - sysstat
