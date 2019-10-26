@@ -2,7 +2,7 @@
 
 nrpeclient_packages:
   - nrpe
-  - perl-utf8-all
+  - perl
   - nagios-plugins-all
   - net-tools
   - nagios-plugins-nrpe
